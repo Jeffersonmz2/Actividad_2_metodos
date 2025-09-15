@@ -302,6 +302,8 @@ abline(v = alpha * sigma, col = "red", lty = 2)
 par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 0.1)  # Restaurar márgenes predeterminados
 ```
 - ### Realiza una interpretación de los gráficos obtenidos.
+
+
 **Densidad de μ̂₁EStimador 1 (Media muestral**
 
 Este estimador, la media muestral, es insesgado para μ = 6, ya que la esperanza de la media muestral de una Gamma es igual a la media poblacional. La cercanía de la curva al valor teórico indica que es un estimador eficiente y confiable para estimar el tiempo de espera promedio. En el contexto del centro médico, esto sugiere que promediar los tiempos de espera de 10 pacientes proporciona una buena estimación del tiempo medio esperado.
