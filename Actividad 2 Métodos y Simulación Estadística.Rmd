@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 source("scrip_actividad_2.R")
+library(tibble)
 set.seed(123)
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 ```
@@ -208,3 +209,120 @@ abline(h = lambda, col = "red", lty = 2)
 legend("topright", legend = c("Promedios muestrales", "Media teórica λ=5"),
        col = c("blue", "red"), pch = c(19, NA), lty = c(NA, 2))
 ```
+
+## Problema 2: Propiedades de los estimadores
+Un centro de atención médica registra el tiempo de espera (en minutos) de los pacientes antes de ser atendidos. Se sabe que estos tiempos siguen una distribución Gamma con parámetros conocidos α=3
+ (forma) y σ=2
+ (escala). El parámetro que se supone desconocido en este problema es la media poblacional μ = ασ.
+ 
+
+Sea X1,X2,…,Xn una muestra aleatoria de tamaño n independiente e identicamente distribuida extraída de esta población. Se proponen los siguientes estimadores para μ
+:
+
+Estimador 1:
+
+$$
+\hat{\mu}_{1} = \frac{1}{n} \sum_{i=1}^{n} X_{i}
+$$
+
+Estimador 2:
+$$
+\hat{\mu}_{2} = \frac{\min(X_{1}, \dots, X_{n}) + \max(X_{1}, \dots, X_{n})}{2}
+$$
+
+Estimador 3:
+$$
+\hat{\mu}_{3} = X_{(1)}
+$$
+
+Estimador 4:
+$$
+\hat{\mu}_{4} = \frac{1}{n+1} \sum_{i=1}^{n} X_{i}
+$$
+
+Realiza las siguientes actividades:
+
+### a. Simulación de estimadores:
+- Genera 100 muestras de tamaño n=10
+de una distribución Gamma con parámetros α=3
+ y σ=2
+
+```{r gama_generar_muestras, echo=FALSE, warning = FALSE}
+# Parámetros de la distribución Gamma
+alpha <- 3
+sigma <- 2
+n <- 10  # Tamaño muestral
+num_samples <- 100  # Número de muestras
+
+```
+- Para cada muestra, calcula los estimadores correspondientes. Luego, grafica los resultados utilizando una curva de densidad o un histograma de densidades para cada estimador.
+
+```{r gama_calcular_estimadores, echo=FALSE, warning = FALSE}
+# Vectores para almacenar los estimadores
+est1 <- numeric(num_samples)  # μ̂1: Media muestral
+est2 <- numeric(num_samples)  # μ̂2: (min + max)/2
+est3 <- numeric(num_samples)  # μ̂3: Mínimo (X(1))
+est4 <- numeric(num_samples)  # μ̂4: Suma / (n+1)
+
+# Generar las 100 muestras y calcular estimadores
+for (i in 1:num_samples) {
+  sample <- rgamma(n, shape = alpha, scale = sigma)
+  est1[i] <- mean(sample)
+  est2[i] <- (min(sample) + max(sample)) / 2
+  est3[i] <- min(sample)
+  est4[i] <- sum(sample) / (n + 1)
+}
+resultados <- tibble(
+  `Estimador 1` = est1,
+  `Estimador 2` = est2,
+  `Estimador 3` = est3,
+  `Estimador 4` = est4
+)
+
+resultados
+```
+```{r grafico_5, echo=FALSE, fig.width=12, fig.height=10, warning = FALSE}
+# Configurar panel para 4 gráficos (2x2) con márgenes ajustados
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))  # Márgenes: bottom, left, top, right
+
+# Graficar curva de densidad para cada estimador
+plot(density(est1), main = "Densidad de μ̂1 (Media muestral)", xlab = "Valor del estimador", col = "blue", lwd = 2)
+abline(v = alpha * sigma, col = "red", lty = 2)
+
+plot(density(est2), main = "Densidad de μ̂2 ((min + max)/2)", xlab = "Valor del estimador", col = "green", lwd = 2)
+abline(v = alpha * sigma, col = "red", lty = 2)
+
+plot(density(est3), main = "Densidad de μ̂3 (Mínimo)", xlab = "Valor del estimador", col = "purple", lwd = 2)
+abline(v = alpha * sigma, col = "red", lty = 2)
+
+plot(density(est4), main = "Densidad de μ̂4 (Suma/(n+1))", xlab = "Valor del estimador", col = "orange", lwd = 2)
+abline(v = alpha * sigma, col = "red", lty = 2)
+
+# Resetear configuración de gráficos
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 0.1)  # Restaurar márgenes predeterminados
+```
+- ### Realiza una interpretación de los gráficos obtenidos.
+**Densidad de μ̂₁EStimador 1 (Media muestral**
+
+Este estimador, la media muestral, es insesgado para μ = 6, ya que la esperanza de la media muestral de una Gamma es igual a la media poblacional. La cercanía de la curva al valor teórico indica que es un estimador eficiente y confiable para estimar el tiempo de espera promedio. En el contexto del centro médico, esto sugiere que promediar los tiempos de espera de 10 pacientes proporciona una buena estimación del tiempo medio esperado.
+
+**Densidad de μ̂₂ Estimador 2((min + max)/2)**
+
+La curva de densidad también se centra cerca de 6, pero muestra una distribución más amplia y ligeramente asimétrica, con colas más pronunciadas que μ̂₁.
+Este estimador, el promedio del mínimo y el máximo de la muestra, es aproximadamente insesgado. a varianza es mayor que la de μ̂₁, reflejando menor eficiencia con un tamaño con n=10, donde los extremos (mínimo y máximo) son más influyentes. 
+
+**Densidad de μ̂₃ Estimador 3 (Mínimo)**
+
+
+La curva de densidad está desplazada hacia la izquierda, con un pico alrededor de 0.5-1 y una cola que se extiende hacia valores mayores, pero muy por debajo de 6. el mínimo de la muestra, es fuertemente sesgado hacia abajo, lo que coincide con el pico observado. Esto indica que el mínimo subestima significativamente el tiempo de espera promedio (μ = 6), siendo un mal estimador para este propósito. En un centro médico, usar el tiempo de espera mínimo como estimador de la media no reflejaría la experiencia típica de los pacientes.
+
+
+**Densidad de μ̂₄ Estimado 4 (Suma/(n+1))**
+
+
+La curva de densidad está ligeramente desplazada hacia la izquierda de 6, con un pico alrededor de 5-5.5 y una forma similar a la de μ̂₁ pero más sesgada .Este estimador, una versión ajustada de la media muestral (suma dividida por n+1 en lugar de n), introduce un sesgo sistemático hacia abajo. Aunque sigue siendo más cercano a μ = 6 que μ̂₃, su eficiencia es menor que la de μ̂₁ debido al sesgo.
+
+### Conclusiones
+- Mejor estimador: μ̂₁ Estimador 1 (media muestral) es el más adecuado, ya que está centrado en la media teórica μ = 6 y tiene menor varianza, reflejando una estimación precisa del tiempo de espera promedio.
+- Sesgo y eficiencia: μ̂₃ Estimador 3 (mínimo) tiene el mayor sesgo y es inapropiado para estimar μ. μ̂₄ tiene un sesgo moderado, mientras que μ̂₂, aunque aproximado, es menos eficiente que μ̂₁.
+- Contexto práctico: Para el centro de atención médica, usar μ̂₁ sería lo más recomendable, ya que captura mejor el tiempo de espera promedio de los pacientes, mientras que los otros estimadores (especialmente μ̂₃) no representan adecuadamente la media poblacional con n=10.
