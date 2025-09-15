@@ -1,0 +1,104 @@
+---
+title: 'Problema 3: Teorema del límite central'
+author: "Ricardo_Vargas_M"
+date: "2025-09-15"
+output: html_document
+---
+
+## Problema 3:Teorema del limite central
+
+En una planta de fabricación de componentes electrónicos, se modela el tiempo (meses) de funcionamiento continuo de una máquina antes de necesitar mantenimiento mediante una distribución Exponencial. El análisis ha determinado que el tiempo hasta el primer mantenimiento sigue una distribución Exponencial con parámetro λ=0.16
+
+La distribución exponencial definida por:
+$$
+X \sim \text{Exp}(\lambda)
+$$
+
+### a. Cálculo de la media y varianza de la población:
+
+Para la distribución exponencial su media:
+$$
+\mathbb{E}[X] = \frac{1}{\lambda}
+$$
+la varianza: 
+$$
+\text{Var}(X) = \frac{1}{\lambda^{2}}
+$$
+
+
+
+```{r}
+library(tibble)
+library(tidyverse)
+
+lambda <- 0.16
+mu <- 1/lambda
+varX <- 1/(lambda^2)
+tibble(media_poblacional = mu, var_poblacional = varX)
+```
+Una maquina puede funcionar alrededor de 6.25 meses antes del mantenimiento.El valor de la varianza es bastante alto por lo tanto habra maquinas que fallen mucho antes o tal vez mucho despues del valor que estamos estimando
+
+### b. Gráfico de la curva de densidad:
+
+Grafica la función de densidad de la distribución Exponencial que describe la población.
+
+Explica cómo el parámetro λ
+ afectan la forma de la curva.
+
+Interpreta el modelo en relación con el mantenimiento predictivo y la probabilidad de fallos prematuros o tardíos.
+
+### c. Comparación de parámetros, estimadores y estimaciones: Toma 10 muestras aleatorias de tamaño n=200
+ de la población Exponencial de parámetro λ
+ usando la función rexp(n, rate=lambda) de R y establece una semilla como por ejemplo set.seed(123) para asegurar la reproducibilidad de los resultados. Para cada muestra:
+
+Elabora un histograma e interpreta la distribución de los datos.
+
+Calcula la media y varianza muestral y compara con los valores poblacionales.
+
+Analiza los siguientes conceptos:
+
+Parámetros: Identifica los valores poblacionales reales.
+
+Estimadores: Define las fórmulas utilizadas para estimar los parámetros.
+
+Estimaciones: Interpreta los valores obtenidos y su relación con las muestras.
+
+### d. Aplicación del Teorema del Límite Central para n=200
+:
+
+Genera 100 muestras de tamaño n=200
+ de la población Exponencial.
+
+Calcula la media muestral de cada muestra y elabora un histograma de las 100 medias muestrales.
+
+Obtén el promedio y la varianza de estas 100 medias muestrales.
+
+Aplica un test de normalidad (α=0.05
+) a las 100 medias muestrales e interpreta los resultados.
+
+Explica cómo se evidencia el Teorema del Límite Central en el comportamiento de las medias muestrales, considerando:
+
+Distribución de las medias muestrales.
+
+Comparación de la media y varianza muestral con las esperadas.
+
+### e. Aplicación del Teorema del Límite Central variando n:
+
+Repite el análisis anterior extrayendo 100 muestras de cada uno de los siguientes tamaños: n=
+ 5, 10, 80, 200, 500 y 2,000.
+
+Para cada tamaño de muestra n
+:
+
+Calcula el promedio y la varianza de las 100 medias muestrales.
+
+Elabora un histograma de las 100 medias muestrales.
+
+Aplica un test de normalidad (α=0.05
+) y discute los resultados.
+
+Concluye sobre la relación entre el tamaño muestral y la validez del Teorema del Límite Central, analizando:
+
+Comportamiento de la distribución de las medias muestrales.
+
+Convergencia de la media y varianza muestral hacia los valores teóricos.
