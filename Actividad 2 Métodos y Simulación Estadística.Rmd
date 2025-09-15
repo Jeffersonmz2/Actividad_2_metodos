@@ -330,14 +330,35 @@ La curva de densidad está ligeramente desplazada hacia la izquierda de 6, con u
 ## Problema 3:Teorema del limite central
 
 En una planta de fabricación de componentes electrónicos, se modela el tiempo (meses) de funcionamiento continuo de una máquina antes de necesitar mantenimiento mediante una distribución Exponencial. El análisis ha determinado que el tiempo hasta el primer mantenimiento sigue una distribución Exponencial con parámetro λ=0.16
-.
+
+La distribución exponencial definida por:
+$$
+X \sim \text{Exp}(\lambda)
+$$
 
 ### a. Cálculo de la media y varianza de la población:
 
-Determina la media y varianza de la población de los tiempos X
- hasta que se requiere mantenimiento de las máquinas en este contexto.
+Para la distribución exponencial su media:
+$$
+\mathbb{E}[X] = \frac{1}{\lambda}
+$$
+la varianza: 
+$$
+\text{Var}(X) = \frac{1}{\lambda^{2}}
+$$
 
-Interpreta los resultados en relación con el tiempo esperado antes del mantenimiento y la variabilidad en los tiempos.
+
+
+```{r}
+library(tibble)
+library(tidyverse)
+
+lambda <- 0.16
+mu <- 1/lambda
+varX <- 1/(lambda^2)
+tibble(media_poblacional = mu, var_poblacional = varX)
+```
+Una maquina puede funcionar alrededor de 6.25 meses antes del mantenimiento.El valor de la varianza es bastante alto por lo tanto habra maquinas que fallen mucho antes o tal vez mucho despues del valor que estamos estimando
 
 ### b. Gráfico de la curva de densidad:
 
