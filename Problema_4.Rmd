@@ -1,0 +1,40 @@
+---
+title: 'Problema 4: Estimación de intervalos de confianza'
+author: "Ricardo_Vargas_M"
+date: "2025-09-15"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problema 4: Estimación de intervalos de confianza
+Una empresa dedicada a la generación de energía renovable desea evaluar el rendimiento de sus 20 generadores eléctricos portátiles, alimentados con biocombustible. Estos generadores se utilizan en proyectos remotos, donde la eficiencia energética es crucial para minimizar costos y reducir la huella ambiental. Para el estudio, se mide la eficiencia energética de cada generador, expresada en kilovatios-hora por litro de combustible (kWh/L). Los resultados son:
+
+# Muestra de eficiencia energética (kWh/L)
+muestra <- c(6.12, 5.87, 5.45, 6.33, 5.71, 6.04, 5.92, 5.65, 6.18, 
+             5.78, 5.95, 6.21, 5.63, 5.79, 6.11, 5.88, 6.02, 5.76, 5.85, 6.10)
+El objetivo es determinar intervalos de confianza al 95% para la eficiencia media.
+
+Realiza las siguientes actividades:
+
+Normalidad:
+
+Elabora un histograma y una curva de densidad de la muestra. ¿Podría considerarse normal la población de origen de la muestra?
+
+Aplica pruebas para evaluar la normalidad. Expón claramente las hipótesis nula y alternativa. Determina el nivel de significancia adecuado. Argumenta el valor del nivel de significancia que uses.
+
+Comenta si los resultados sugieren la viabilidad de usar métodos paramétricos para calcular intervalos de confianza.
+
+Método paramétrico:
+
+Si se cumplen las condiciones para su aplicación, calcula un intervalo de confianza paramétrico.
+
+Compara e interpreta este intervalo con los obtenidos mediante métodos no paramétricos.
+
+Procedimiento bootstrap:
+
+Calcula 2 tipos de intervalos de confianza para la media mediante Bootstrap.
+
+Compara ambos intervalos: ¿Son similares o presentan diferencias significativas?
