@@ -24,7 +24,7 @@ la varianza:
 $$
 \text{Var}(X) = \frac{1}{\lambda^{2}}
 $$
-
+Realizando el calculo reemplazando el valor de $\lambda$ obtenemos:
 
 
 ```{r ecuaciones ,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
@@ -105,36 +105,62 @@ legend("topright",
 ### c. Comparación de parámetros, estimadores y estimaciones: Toma 10 muestras aleatorias de tamaño n=200
 
 ```{r Lista ,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
-set.seed(123)   # reproducibilidad
 
-n <- 200
-
-# Lista con 10 muestras (cada una de tamaño 200)
+n <- 200 # Lista con 10 muestras (cada una de tamaño 200) 
 muestras <- replicate(10, rexp(n, rate=lambda), simplify=FALSE)
 
-hist(muestras[[1]],
-     breaks=20, col="skyblue", border="white",
-     main="Histograma de la muestra 1",
-     xlab="Tiempo hasta mantenimiento (meses)",
-     ylab="Frecuencia")
+library(ggplot2)
+library(dplyr)
+
+df <- data.frame(
+  valor = unlist(muestras),
+  muestra = rep(1:10, each=n)
+)
+
+ggplot(df, aes(x=valor)) +
+  geom_histogram(aes(y=..density..), fill="skyblue", color="white", bins=20) +
+  stat_function(fun = dexp, args = list(rate=lambda), color="black", size=1) +
+  geom_vline(xintercept=mu, color="red", linetype="dashed", size=1) +
+  facet_wrap(~muestra, ncol=5) +
+  labs(x="Tiempo", y="Densidad") +
+  theme_bw(base_size=12)
 
 ```
 
 
- de la población Exponencial de parámetro λ
- usando la función rexp(n, rate=lambda) de R y establece una semilla como por ejemplo set.seed(123) para asegurar la reproducibilidad de los resultados. Para cada muestra:
+Viendo la comparación de las graficas de histogramas vs la curva vemos que puede y logra representar en una gran mayoria la "realidad" de los datos. Las muestras que presentan errores se deben al error muestral puesto que al ser diferentes las 10 muestras entre si los valores fluctuan.
+Con un mayor tamaño de la muestra, las diferencias tienden a disminuir 
 
-Elabora un histograma e interpreta la distribución de los datos.
 
-Calcula la media y varianza muestral y compara con los valores poblacionales.
+```{r Tablas,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
+## 3) Medias y varianzas muestrales + comparación con población
+resultados <- data.frame(
+  muestra        = 1:10,
+  media_muestral = sapply(muestras, mean),
+  var_muestral   = sapply(muestras, var)
+)
 
-Analiza los siguientes conceptos:
+resultados$dif_media <- resultados$media_muestral - mu
+resultados$dif_var   <- resultados$var_muestral   - varX
 
-Parámetros: Identifica los valores poblacionales reales.
+print(resultados)
 
-Estimadores: Define las fórmulas utilizadas para estimar los parámetros.
+## 4) Resumen global de las 10 muestras (útil para tu reporte)
+resumen <- c(
+  media_poblacional   = mu,
+  var_poblacional     = varX,
+  promedio_de_medias  = mean(resultados$media_muestral),
+  promedio_de_var     = mean(resultados$var_muestral),
+  sd_de_las_medias    = sd(resultados$media_muestral)    # se espera ≈ (1/lambda)/sqrt(n)
+)
+print(round(resumen, 4))
 
-Estimaciones: Interpreta los valores obtenidos y su relación con las muestras.
+```
+Podemos ver como las 10 muestras estan entre un rango de 6.1-6.4 todas muy cercanas al 6.25. La diferencia maxima es de alrededor de 0.15. De la misma forma la varianza esta en un rango de 31-42 y su diferencia es de alrededor 2.7.
+
+La desviación estandar de las medias 0.27 indica que tanta variación hay entre las medias de la muestra al tener tan pocas muestras el valor es bajo, seguramente si se aumentamos las muestras o su población este valor tambien aumentaria.
+
+ 
 
 ### d. Aplicación del Teorema del Límite Central para n=200
 :
