@@ -27,7 +27,7 @@ $$
 
 
 
-```{r}
+```{r ecuaciones ,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
 library(tibble)
 library(tidyverse)
 
@@ -39,6 +39,67 @@ tibble(media_poblacional = mu, var_poblacional = varX)
 Una maquina puede funcionar alrededor de 6.25 meses antes del mantenimiento.El valor de la varianza es bastante alto por lo tanto habra maquinas que fallen mucho antes o tal vez mucho despues del valor que estamos estimando
 
 ### b. Gráfico de la curva de densidad:
+
+```{r Grafica 1,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
+
+# Datos para graficar
+x <- seq(0, 40, length.out=1000)
+y <- dexp(x, rate=lambda)
+
+
+# Gráfico de densidad
+plot(x, y, type="l", 
+     col="blue", lwd=2,
+     main="Densidad Exponencial (λ = 0.16)",
+     xlab="Tiempo hasta mantenimiento (meses)",
+     ylab="Densidad")
+
+# Línea vertical en la media
+abline(v=mu, col="red", lty=2, lwd=2)
+
+# Leyenda
+legend("topright", 
+       legend=c(paste("Media =", round(mu,2),"meses")),
+       col="red", lty=2, lwd=2, bty="n")
+
+
+
+```
+
+
+La curva de densidad exponencial y su media se puede ver en la grafica anterior, por si sola esta gráfica nos permite ver la variación existente en cuanto a las maquinas y su tiempo de mantenimiento. 
+El parametro lambda $\lambda$ como se puede ver en la siguiente gráfica hara que la curva caiga mas rapido ( mayor fallo temprano ) o que la curva caiga lentamente de tal forma que la duracion entre mantenimientos sea mayor.
+
+```{Grafica 2,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
+
+
+
+# Comparación de formas con distintos lambdas
+lambda_vals <- c(0.08, 0.16, 0.32)
+colores <- c("blue", "green", "orange")
+
+# Rango de valores de x
+x <- seq(0, 40, length.out=1000)
+
+# Gráfico vacío
+plot(x, dexp(x, rate=lambda_vals[1]), type="l",
+     col=colores[1], lwd=2,
+     xlab="Tiempo hasta mantenimiento (meses)",
+     ylab="Densidad",
+     main="Efecto de λ en la forma de la distribución Exponencial",
+     ylim=c(0, max(dexp(x, rate=lambda_vals[3]))))
+
+# Agregar las otras curvas
+lines(x, dexp(x, rate=lambda_vals[2]), col=colores[2], lwd=2)
+lines(x, dexp(x, rate=lambda_vals[3]), col=colores[3], lwd=2)
+
+# Leyenda
+legend("topright",
+       legend=paste("λ =", lambda_vals),
+       col=colores,
+       lty=1, lwd=2, bty="n")
+```
+
 
 Grafica la función de densidad de la distribución Exponencial que describe la población.
 
