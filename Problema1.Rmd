@@ -21,7 +21,7 @@ muestra <- rpois(n, lambda = 5)
 # x=3
 # 2. Calcular la frecuencia absoluta para X=3
 frecuencia_absoluta <- sum(muestra == 3)
-frecuencia_relativa <- frecuencia_absoluta / n
+frecuencia_relativa <- frecuencia_absoluta / n 
 
 
 

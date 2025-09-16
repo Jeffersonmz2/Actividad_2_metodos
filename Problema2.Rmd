@@ -53,7 +53,7 @@ de una distribución Gamma con parámetros α=3
 ```{r gama_generar_muestras, echo=FALSE, warning = FALSE}
 # Parámetros de la distribución Gamma
 alpha <- 3
-sigma <- 2
+sigma <- 2 
 n <- 10  # Tamaño muestral
 num_samples <- 100  # Número de muestras
 
