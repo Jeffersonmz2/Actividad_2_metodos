@@ -162,8 +162,42 @@ La desviación estandar de las medias 0.27 indica que tanta variación hay entre
 
  
 
-### d. Aplicación del Teorema del Límite Central para n=200
-:
+### d. Aplicación del Teorema del Límite Central para n=200:
+
+```{r}
+
+set.seed(123)
+lambda <- 0.16
+n <- 200
+B <- 100   # número de muestras
+
+# 1) Generar 100 medias muestrales
+medias <- replicate(B, mean(rexp(n, rate=lambda)))
+
+# 2) Histograma de las medias muestrales
+hist(medias, breaks=15, col="skyblue", border="white",
+     main="Histograma de 100 medias muestrales (n=200)",
+     xlab="Media muestral", probability=TRUE)
+
+# Curva normal teórica según el TLC
+mu <- 1/lambda
+sigma <- 1/lambda
+sigma_xbar <- sigma/sqrt(n)
+
+curve(dnorm(x, mean=mu, sd=sigma_xbar), add=TRUE, col="red", lwd=2)
+
+# 3) Promedio y varianza de las 100 medias muestrales
+promedio_medias <- mean(medias)
+varianza_medias <- var(medias)
+
+c(promedio_medias=promedio_medias, varianza_medias=varianza_medias)
+
+# 4) Test de normalidad (Shapiro-Wilk)
+shapiro.test(medias)
+
+
+```
+
 
 Genera 100 muestras de tamaño n=200
  de la población Exponencial.
