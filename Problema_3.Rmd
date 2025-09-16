@@ -101,14 +101,26 @@ legend("topright",
 ```
 
 
-Grafica la función de densidad de la distribución Exponencial que describe la población.
-
-Explica cómo el parámetro λ
- afectan la forma de la curva.
-
-Interpreta el modelo en relación con el mantenimiento predictivo y la probabilidad de fallos prematuros o tardíos.
 
 ### c. Comparación de parámetros, estimadores y estimaciones: Toma 10 muestras aleatorias de tamaño n=200
+
+```{r Lista ,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
+set.seed(123)   # reproducibilidad
+
+n <- 200
+
+# Lista con 10 muestras (cada una de tamaño 200)
+muestras <- replicate(10, rexp(n, rate=lambda), simplify=FALSE)
+
+hist(muestras[[1]],
+     breaks=20, col="skyblue", border="white",
+     main="Histograma de la muestra 1",
+     xlab="Tiempo hasta mantenimiento (meses)",
+     ylab="Frecuencia")
+
+```
+
+
  de la población Exponencial de parámetro λ
  usando la función rexp(n, rate=lambda) de R y establece una semilla como por ejemplo set.seed(123) para asegurar la reproducibilidad de los resultados. Para cada muestra:
 
