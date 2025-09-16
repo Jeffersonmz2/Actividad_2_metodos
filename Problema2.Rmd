@@ -1,0 +1,396 @@
+---
+title: "Problema2"
+author: "Jefferson Martinez"
+date: "`r Sys.Date()`"
+output: html_document
+---
+```{r setup, include=FALSE}
+library(tibble)
+library(knitr)
+library(vioplot)
+library(ggplot2)
+set.seed(50)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+## Problema 2: Propiedades de los estimadores
+Un centro de atención médica registra el tiempo de espera (en minutos) de los pacientes antes de ser atendidos. Se sabe que estos tiempos siguen una distribución Gamma con parámetros conocidos α=3
+ (forma) y σ=2
+ (escala). El parámetro que se supone desconocido en este problema es la media poblacional μ = ασ.
+ 
+
+Sea X1,X2,…,Xn una muestra aleatoria de tamaño n independiente e identicamente distribuida extraída de esta población. Se proponen los siguientes estimadores para μ
+:
+
+Estimador 1:
+
+$$
+\hat{\mu}_{1} = \frac{1}{n} \sum_{i=1}^{n} X_{i}
+$$
+
+Estimador 2:
+$$
+\hat{\mu}_{2} = \frac{\min(X_{1}, \dots, X_{n}) + \max(X_{1}, \dots, X_{n})}{2}
+$$
+
+Estimador 3:
+$$
+\hat{\mu}_{3} = X_{(1)}
+$$
+
+Estimador 4:
+$$
+\hat{\mu}_{4} = \frac{1}{n+1} \sum_{i=1}^{n} X_{i}
+$$
+
+Realiza las siguientes actividades:
+
+### a. Simulación de estimadores:
+- Genera 100 muestras de tamaño n=10
+de una distribución Gamma con parámetros α=3
+ y σ=2
+
+```{r gama_generar_muestras, echo=FALSE, warning = FALSE}
+# Parámetros de la distribución Gamma
+alpha <- 3
+sigma <- 2
+n <- 10  # Tamaño muestral
+num_samples <- 100  # Número de muestras
+
+```
+- Para cada muestra, calcula los estimadores correspondientes. Luego, grafica los resultados utilizando una curva de densidad o un histograma de densidades para cada estimador.
+
+```{r gama_calcular_estimadores, echo=FALSE, warning = FALSE}
+# Vectores para almacenar los estimadores
+est1 <- numeric(num_samples)  # μ̂1: Media muestral
+est2 <- numeric(num_samples)  # μ̂2: (min + max)/2
+est3 <- numeric(num_samples)  # μ̂3: Mínimo (X(1))
+est4 <- numeric(num_samples)  # μ̂4: Suma / (n+1)
+
+# Generar las 100 muestras y calcular estimadores
+for (i in 1:num_samples) {
+  sample <- rgamma(n, shape = alpha, scale = sigma)
+  est1[i] <- mean(sample)
+  est2[i] <- (min(sample) + max(sample)) / 2
+  est3[i] <- min(sample)
+  est4[i] <- sum(sample) / (n + 1)
+}
+resultados <- tibble(
+  `Estimador 1` = est1,
+  `Estimador 2` = est2,
+  `Estimador 3` = est3,
+  `Estimador 4` = est4
+)
+
+resultados
+```
+```{r grafico_1, echo=FALSE, fig.width=12, fig.height=10, warning = FALSE}
+# Configurar panel para 4 gráficos (2x2) con márgenes ajustados
+par(mfrow = c(2, 2), mar = c(4, 4, 2, 1))  # Márgenes: bottom, left, top, right
+
+# Graficar curva de densidad para cada estimador
+plot(density(est1), main = "Densidad de μ̂1 (Media muestral) Estimador1", xlab = "Valor del estimador", col = "blue", lwd = 2)
+abline(v = alpha * sigma, col = "red", lty = 2)
+
+plot(density(est2), main = "Densidad de μ̂2 ((min + max)/2) Estimador2", xlab = "Valor del estimador", col = "green", lwd = 2)
+abline(v = alpha * sigma, col = "red", lty = 2)
+
+plot(density(est3), main = "Densidad de μ̂3 (Mínimo )Estimado3", xlab = "Valor del estimador", col = "purple", lwd = 2)
+abline(v = alpha * sigma, col = "red", lty = 2)
+
+plot(density(est4), main = "Densidad de μ̂4 (Suma/(n+1))Estimador4", xlab = "Valor del estimador", col = "orange", lwd = 2)
+abline(v = alpha * sigma, col = "red", lty = 2)
+
+# Resetear configuración de gráficos
+par(mfrow = c(1, 1), mar = c(5, 4, 4, 2) + 0.1)  # Restaurar márgenes predeterminados
+```
+- ### Realiza una interpretación de los gráficos obtenidos.
+
+
+**Densidad de μ̂₁EStimador 1 (Media muestral**
+
+Este estimador, la media muestral, es insesgado para μ = 6, ya que la esperanza de la media muestral de una Gamma es igual a la media poblacional. La cercanía de la curva al valor teórico indica que es un estimador eficiente y confiable para estimar el tiempo de espera promedio. En el contexto del centro médico, esto sugiere que promediar los tiempos de espera de 10 pacientes proporciona una buena estimación del tiempo medio esperado.
+
+**Densidad de μ̂₂ Estimador 2((min + max)/2)**
+
+La curva de densidad también se centra cerca de 6, pero muestra una distribución más amplia y ligeramente asimétrica, con colas más pronunciadas que μ̂₁.
+Este estimador, el promedio del mínimo y el máximo de la muestra, es aproximadamente insesgado. a varianza es mayor que la de μ̂₁, reflejando menor eficiencia con un tamaño con n=10, donde los extremos (mínimo y máximo) son más influyentes. 
+
+**Densidad de μ̂₃ Estimador 3 (Mínimo)**
+
+
+La curva de densidad está desplazada hacia la izquierda, con un pico alrededor de 0.5-1 y una cola que se extiende hacia valores mayores, pero muy por debajo de 6. el mínimo de la muestra, es fuertemente sesgado hacia abajo, lo que coincide con el pico observado. Esto indica que el mínimo subestima significativamente el tiempo de espera promedio (μ = 6), siendo un mal estimador para este propósito. En un centro médico, usar el tiempo de espera mínimo como estimador de la media no reflejaría la experiencia típica de los pacientes.
+
+
+**Densidad de μ̂₄ Estimado 4 (Suma/(n+1))**
+
+
+La curva de densidad está ligeramente desplazada hacia la izquierda de 6, con un pico alrededor de 5-5.5 y una forma similar a la de μ̂₁ pero más sesgada .Este estimador, una versión ajustada de la media muestral (suma dividida por n+1 en lugar de n), introduce un sesgo sistemático hacia abajo. Aunque sigue siendo más cercano a μ = 6 que μ̂₃, su eficiencia es menor que la de μ̂₁ debido al sesgo.
+
+### Conclusiones
+- Mejor estimador: μ̂₁ Estimador 1 (media muestral) es el más adecuado, ya que está centrado en la media teórica μ = 6 y tiene menor varianza, reflejando una estimación precisa del tiempo de espera promedio.
+- Sesgo y eficiencia: μ̂₃ Estimador 3 (mínimo) tiene el mayor sesgo y es inapropiado para estimar μ. μ̂₄ tiene un sesgo moderado, mientras que μ̂₂, aunque aproximado, es menos eficiente que μ̂₁.
+- Contexto práctico: Para el centro de atención médica, usar μ̂₁ sería lo más recomendable, ya que captura mejor el tiempo de espera promedio de los pacientes, mientras que los otros estimadores (especialmente μ̂₃) no representan adecuadamente la media poblacional con n=10.
+
+### b. Insesgadez:
+
+- Mediante una simulación computacional, estima la media de cada estimador y compárala con el valor verdadero de la media de la población.
+
+```{r media_estimadores, echo=FALSE, warning = FALSE}
+# Calcular las medias de los estimadores
+mean_est1 <- mean(est1)
+mean_est2 <- mean(est2)
+mean_est3 <- mean(est3)
+mean_est4 <- mean(est4)
+
+#Calcular sesgos
+bias1 <- mean_est1 - (alpha * sigma)
+bias2 <- mean_est2 - (alpha * sigma)
+bias3 <- mean_est3 - (alpha * sigma)
+bias4 <- mean_est4 - (alpha * sigma)
+
+# Sesgos absolutos
+abs_bias1 <- abs(bias1)
+abs_bias2 <- abs(bias2)
+abs_bias3 <- abs(bias3)
+abs_bias4 <- abs(bias4)
+
+comparison_table <- data.frame(
+  Estimador = c("μ̂₁ (Media muestral)", "μ̂₂ ((min + max)/2)", "μ̂₃ (Mínimo)", "μ̂₄ (Suma/(n+1))"),
+  Media_Estimada = c(mean_est1, mean_est2, mean_est3, mean_est4),
+  Valor_Verdadero = rep(alpha * sigma, 4),
+  Sesgo = c(bias1, bias2, bias3, bias4),
+  Sesgo_ABS = c(abs_bias1, abs_bias2, abs_bias3, abs_bias4)
+)
+
+# Formatear la tabla con kable
+kable(comparison_table, caption = "Comparación de estimadores con la media poblacional", digits = 3)
+
+```
+Realiza un análisis utilizando gráficos y las estadísticas pertinentes para determinar cuál de los estimadores es el menos sesgado.
+
+```{r grafico_2, echo=FALSE, fig.width=12, fig.height=10, warning = FALSE}
+
+#  Gráfico de violín
+par(mfrow = c(1, 1))
+vioplot::vioplot(est1, est2, est3, est4, names = c("μ̂1 Estimador1", "μ̂2 Estimador2", "μ̂3 Estimador3", "μ̂4 Estimador4"),
+                 main = "Gráfico de Violín de los Estimadores", ylab = "Valor del estimador",
+                 col = c("blue", "green", "purple", "orange"))
+abline(h = alpha * sigma, col = "red", lty = 2)
+legend("topright", legend = c("μ = 6"), col = "red", lty = 2, bty = "n")
+```
+
+#### Conclusiones:
+El menor sesgo absoluto es **`r round(abs_bias1,2)`**, correspondiente a **μ̂₁ Estimador1 (Media muestral).**
+
+
+El estimador con el menor sesgo es μ̂₁ (Media muestral), con un sesgo de `r round(bias1,2) `. Esto indica que, en esta simulación, la media muestral proporciona la estimación más cercana al valor verdadero de la media poblacional μ = 6, confirmando que es el menos sesgado entre los cuatro estimadores propuestos. Este resultado es consistente con la teoría, ya que la media muestral es un estimador insesgado por definición (E[μ̂₁] = μ), y el pequeño sesgo observado se debe a la variabilidad aleatoria en la simulación con 100 muestras de tamaño 10.
+En el contexto del centro de atención médica, usar μ̂₁ sería la mejor opción para estimar el tiempo de espera promedio de los pacientes.
+
+### c. Consistencia:
+
+- Mediante una simulación computacional, incrementa el tamaño muestral desde n=10
+ hasta n=1,000
+, utilizando un conjunto de valores representativos como 5, 10, 20, 30, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, entre otros. Grafica cómo cambia la variabilidad relativa de los estimadores a medida que aumenta el tamaño muestral.
+
+
+# Tamaños muestrales (incrementando desde 10 hasta 1000, agregando valores representativos)
+sample_sizes <- c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000)
+
+
+```{r icremento_tamaño_muestrales, echo=FALSE, warning = FALSE}
+mu_true <- alpha * sigma  # μ = 6
+
+# Número de simulaciones por tamaño muestral
+num_sim <- 100
+# Tamaños muestrales (incrementando desde 10 hasta 1000, agregando valores representativos)
+sample_sizes <- c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000)
+# Vectores para almacenar sd, varianza y CV para cada estimador
+bias_est1 <- numeric(length(sample_sizes))
+bias_est2 <- numeric(length(sample_sizes))
+bias_est3 <- numeric(length(sample_sizes))
+bias_est4 <- numeric(length(sample_sizes))
+sd_est1 <- numeric(length(sample_sizes))
+sd_est2 <- numeric(length(sample_sizes))
+sd_est3 <- numeric(length(sample_sizes))
+sd_est4 <- numeric(length(sample_sizes))
+var_est1 <- numeric(length(sample_sizes))
+var_est2 <- numeric(length(sample_sizes))
+var_est3 <- numeric(length(sample_sizes))
+var_est4 <- numeric(length(sample_sizes))
+cv_est1 <- numeric(length(sample_sizes))
+cv_est2 <- numeric(length(sample_sizes))
+cv_est3 <- numeric(length(sample_sizes))
+cv_est4 <- numeric(length(sample_sizes))
+mse_est1 <- numeric(length(sample_sizes))
+mse_est2 <- numeric(length(sample_sizes))
+mse_est3 <- numeric(length(sample_sizes))
+mse_est4 <- numeric(length(sample_sizes))
+# Simulación para cada tamaño muestral
+for (j in 1:length(sample_sizes)) {
+  n <- sample_sizes[j]
+  est1_sim <- numeric(num_sim)
+  est2_sim <- numeric(num_sim)
+  est3_sim <- numeric(num_sim)
+  est4_sim <- numeric(num_sim)
+  
+  for (i in 1:num_sim) {
+    sample <- rgamma(n, shape = alpha, scale = sigma)
+    est1_sim[i] <- mean(sample)
+    est2_sim[i] <- (min(sample) + max(sample)) / 2
+    est3_sim[i] <- min(sample)
+    est4_sim[i] <- sum(sample) / (n + 1)
+  }
+  # Calcular sd, varianza y CV (sd / mean)
+  sd_est1[j] <- sd(est1_sim)
+  sd_est2[j] <- sd(est2_sim)
+  sd_est3[j] <- sd(est3_sim)
+  sd_est4[j] <- sd(est4_sim)
+  
+  var_est1[j] <- var(est1_sim)
+  var_est2[j] <- var(est2_sim)
+  var_est3[j] <- var(est3_sim)
+  var_est4[j] <- var(est4_sim)
+  
+  cv_est1[j] <- sd(est1_sim) / mean(est1_sim)
+  cv_est2[j] <- sd(est2_sim) / mean(est2_sim)
+  cv_est3[j] <- sd(est3_sim) / mean(est3_sim)
+  cv_est4[j] <- sd(est4_sim) / mean(est4_sim)
+  mean_est1 <- mean(est1_sim)
+  mean_est2 <- mean(est2_sim)
+  mean_est3 <- mean(est3_sim)
+  mean_est4 <- mean(est4_sim)
+  
+  bias_est1[j] <- mean_est1 - mu_true
+  bias_est2[j] <- mean_est2 - mu_true
+  bias_est3[j] <- mean_est3 - mu_true
+  bias_est4[j] <- mean_est4 - mu_true
+  
+  mse_est1[j] <- bias_est1[j]^2 + var_est1[j]
+  mse_est2[j] <- bias_est2[j]^2 + var_est2[j]
+  mse_est3[j] <- bias_est3[j]^2 + var_est3[j]
+  mse_est4[j] <- bias_est4[j]^2 + var_est4[j]
+  
+ }
+```
+
+```{r grafico_3, echo=FALSE, fig.width=12, fig.height=10, warning = FALSE}
+# Depuración: Imprimir valores de CV
+cat("Valores de Coeficiente de Variación (CV) por tamaño muestral:\n")
+for (j in 1:length(sample_sizes)) {
+  cat(sprintf("n = %d: cv_est1 = %.6f, cv_est2 = %.6f, cv_est3 = %.6f, cv_est4 = %.6f\n",
+              sample_sizes[j], cv_est1[j], cv_est2[j], cv_est3[j], cv_est4[j]))
+}
+
+
+# Ajuste del gráfico existente
+plot(sample_sizes, cv_est1, type = "l", col = "blue", lwd = 2, ylim = c(0, max(c(cv_est1, cv_est2, cv_est3, cv_est4))),
+     xlab = "Tamaño muestral n", ylab = "Coeficiente de variación (sd / mean) [log scale]",
+     main = "Variabilidad relativa de los estimadores vs n")
+lines(sample_sizes, cv_est2, type = "l", col = "green", lwd = 2)
+lines(sample_sizes, cv_est3, type = "l", col = "purple", lwd = 2)
+lines(sample_sizes, cv_est4, type = "l", col = "orange", lwd = 2)
+legend("topright", legend = c("μ̂1", "μ̂2", "μ̂3", "μ̂4"), col = c("blue", "green", "purple", "orange"), lty = 1, lwd = 2)
+
+# Gráfico alternativo: Gráfico de área
+
+cv_data_long <- data.frame(
+  n = rep(sample_sizes, 4),
+  cv = c(cv_est1, cv_est2, cv_est3, cv_est4),
+  estimator = rep(c("μ̂1", "μ̂2", "μ̂3", "μ̂4"), each = length(sample_sizes))
+)
+ggplot(cv_data_long, aes(x = n, y = cv, fill = estimator)) +
+  geom_area(position = "stack", alpha = 0.6) +
+  scale_y_log10(limits = c(0.0001, 0.5), breaks = c(0.0001, 0.001, 0.01, 0.1, 0.5)) +
+  labs(title = "Variabilidad relativa de los estimadores vs n (Área)", x = "Tamaño muestral n", y = "Coeficiente de variación (sd / mean) [log scale]") +
+  theme_minimal() +
+  scale_fill_manual(values = c("μ̂1" = "blue", "μ̂2" = "green", "μ̂3" = "purple", "μ̂4" = "orange"))
+```
+
+### d. Eficiencia:
+
+- Mediante una simulación computacional, calcula la varianza muestral y el coeficiente de variación de cada estimador, y compáralos.
+```{r tabla_estadísticas, echo=FALSE, warning = FALSE}
+# Construir tabla de estadísticas
+results_table <- data.frame(
+  n = sample_sizes,
+  var1 = round(var_est1,2),cv1 = round(cv_est1,2),
+  var2 = round(var_est2,2),cv2 = round(cv_est2,2),
+  var3 = round(var_est3,2),cv3 = round(cv_est3,2),
+  var4 = round(var_est4,2),cv4 = round(cv_est4,2)
+  
+)
+cat("Tabla de estadísticas:\n")
+print(results_table)
+```
+
+#### Conclusión comparativa
+
+**μ̂₁ y μ̂₄** son los más eficientes (menor varianza y CV decrecientes), con μ̂₁ ligeramente superior por ser insesgado.
+
+
+**μ̂₂** es menos eficiente (varianza y CV moderados, fluctuantes).
+
+
+**μ̂₃** es el menos eficiente (CV alto, varianza no compensa sesgo).
+
+
+En el centro médico, μ̂₁ es el mejor para predecir tiempos de espera, minimizando errores en planificación. Para n grande, su varianza baja asegura precisión; para n pequeño, su CV bajo lo hace confiable.
+- Realiza un análisis utilizando gráficos y las estadísticas necesarias para evaluar la consistencia de los estimadores.
+```{r grafico_4, echo=FALSE, fig.width=12, fig.height=10, warning = FALSE}
+
+
+
+# Gráfico 1: Sesgo vs n
+plot(sample_sizes, bias_est1, type = "o", col = "blue", pch = 19, ylim = c(min(c(bias_est1, bias_est2, bias_est3, bias_est4)), max(c(bias_est1, bias_est2, bias_est3, bias_est4))),
+     xlab = "Tamaño muestral n", ylab = "Sesgo",
+     main = "Sesgo de los estimadores vs n")
+lines(sample_sizes, bias_est2, type = "o", col = "green", pch = 19)
+lines(sample_sizes, bias_est3, type = "o", col = "purple", pch = 19)
+lines(sample_sizes, bias_est4, type = "o", col = "orange", pch = 19)
+abline(h = 0, col = "red", lty = 2)
+legend("topright", legend = c("μ̂1", "μ̂2", "μ̂3", "μ̂4"), col = c("blue", "green", "purple", "orange"), lty = 1, pch = 19)
+
+# Gráfico 2: Varianza vs n
+plot(sample_sizes, var_est1, type = "o", col = "blue", pch = 19, ylim = c(0, max(c(var_est1, var_est2, var_est3, var_est4))),
+     xlab = "Tamaño muestral n", ylab = "Varianza",
+     main = "Varianza de los estimadores vs n")
+lines(sample_sizes, var_est2, type = "o", col = "green", pch = 19)
+lines(sample_sizes, var_est3, type = "o", col = "purple", pch = 19)
+lines(sample_sizes, var_est4, type = "o", col = "orange", pch = 19)
+abline(h = 0, col = "red", lty = 2)
+legend("topright", legend = c("μ̂1", "μ̂2", "μ̂3", "μ̂4"), col = c("blue", "green", "purple", "orange"), lty = 1, pch = 19)
+
+# Gráfico 3: MSE vs n
+plot(sample_sizes, mse_est1, type = "o", col = "blue", pch = 19, ylim = c(0, max(c(mse_est1, mse_est2, mse_est3, mse_est4))),
+     xlab = "Tamaño muestral n", ylab = "Error Cuadrático Medio (MSE)",
+     main = "MSE de los estimadores vs n")
+lines(sample_sizes, mse_est2, type = "o", col = "green", pch = 19)
+lines(sample_sizes, mse_est3, type = "o", col = "purple", pch = 19)
+lines(sample_sizes, mse_est4, type = "o", col = "orange", pch = 19)
+abline(h = 0, col = "red", lty = 2)
+legend("topright", legend = c("μ̂1", "μ̂2", "μ̂3", "μ̂4"), col = c("blue", "green", "purple", "orange"), lty = 1, pch = 19)
+```
+
+
+#### Evaluación de la consistencia
+
+μ̂1 (Media muestral): Consistente. Sesgo ≈ 0 para n > 20, varianza → 0, MSE → 0. Es el estimador más eficiente.
+μ̂2 ((min + max)/2): Consistente en teoría para distribuciones como Gamma, pero la simulación muestra convergencia lenta (varianza y MSE no caen tan rápido).
+μ̂3 (Mínimo): No consistente. Sesgo no tiende a 0 (converge a un valor cerca de 0, no a μ=6), aunque varianza → 0. MSE permanece alto.
+μ̂4 (Suma/(n+1)): Consistente. Sesgo tiende a 0, varianza → 0, MSE → 0, similar a μ̂1.
+
+#### Recomendación para el centro de atención médica
+Para predecir el tiempo de espera promedio por paciente (μ = 6), el mejor estimador es μ̂1 (media muestral). Es insesgado, consistente y tiene el MSE más bajo para n grande, lo que proporciona predicciones precisas y confiables. Por ejemplo, con n = 100, el MSE es ~0.121, lo que significa un error bajo en la estimación. Usa la media de los tiempos de espera observados.
+
+
+
+
+
+**Determinación del estimador más eficiente**
+
+El estimador con el menor MSE general es μ̂1 (media muestral), seguido de cerca por μ̂4. Para n pequeño (e.g., 10), MSE1 = 1.2508 vs MSE4 = 1.3255. Para n grande (e.g., 1000), MSE1 = 0.0120 vs MSE4 = 0.0119, pero μ̂1 es insesgado, lo que lo hace más confiable.
+μ̂2 es menos eficiente (MSE alto y creciente debido a varianza de extremos).
+μ̂3 es el menos eficiente (MSE alto por sesgo persistente).
+
+En el contexto del centro de atención médica, recomiendo μ̂1 como el más eficiente. Proporciona estimaciones precisas del tiempo de espera promedio (6 minutos) con menor error, ideal para planificación de recursos. Para n ≥ 100, el MSE es bajo (~0.1), minimizando incertidumbre. Si n es pequeño, μ̂1 sigue siendo superior. Evita μ̂3 y μ̂2 por su alta variabilidad.

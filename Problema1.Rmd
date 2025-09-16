@@ -1,0 +1,249 @@
+---
+title: "Problema1"
+author: "Jefferson Martinez"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+set.seed(123)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+```{r dis_P, echo=FALSE, warning = FALSE}
+# a. Cálculo de probabilidad teórica:
+# x = 3
+xes3 <- dpois(3,5)
+
+
+n=1000
+
+muestra <- rpois(n, lambda = 5)
+# x=3
+# 2. Calcular la frecuencia absoluta para X=3
+frecuencia_absoluta <- sum(muestra == 3)
+frecuencia_relativa <- frecuencia_absoluta / n
+
+
+
+#C. Análisis de la variabilidad entre muestras:
+
+#Genera 100 muestras aleatorias de tamaño n=1,000.
+#Calcula la frecuencia relativa para X=3 en cada muestra.
+#Construye un gráfico de dispersión:
+
+#Inicializar un vector vacío para guardar las frecuencias relativas
+frecuencias_relativas <- c()
+
+# Generar 100 muestras y calcular la frecuencia relativa para cada una
+for (i in 1:100) {
+  # Generar una muestra aleatoria de tamaño 1000 con lambda = 5
+  muestra <- rpois(1000, lambda = 5)
+  
+  # Calcular la frecuencia de X=3
+  frecuencia_x_3 <- sum(muestra == 3)
+  
+  # Calcular la frecuencia relativa y guardarla
+  frecuencia_relativa_x_3 <- frecuencia_x_3 / 1000
+  frecuencias_relativas <- c(frecuencias_relativas, frecuencia_relativa_x_3)
+}
+
+simulaciones <- 1:100
+datos_grafico <- data.frame(Simulacion = simulaciones, Frecuencia = frecuencias_relativas)
+```
+## Problema 1: Estimación de la probabilidad y la media
+Una empresa de servicio técnico recibe, en promedio, 5 solicitudes de reparación por hora. Suponiendo que el número de solicitudes sigue una distribución de Poisson, realiza las siguientes actividades:
+
+## a. Cálculo de probabilidad teórica:
+- ### Calcula la probabilidad de que en una hora lleguen exactamente 3 solicitudes usando la fórmula de la distribución de Poisson. Expresa el resultado como P(X=3)
+.
+La probabilidad de que **P(X=3)** es  **`r xes3`** 
+
+## b Simulación con una muestra:
+- ### Genera una muestra aleatoria de tamaño n=1,000
+
+*`r muestra`*
+
+- ### Calcula la frecuencia relativa para X=3
+ 
+ La frecuencia relativa para **X=3** es **`r frecuencia_relativa`**
+ 
+ - ### Compara e interpreta el resultado frente a la probabilidad teórica.
+
+ la diferencia entre la probabilidad la simulada y la teoríca   es **`r xes3-frecuencia_relativa`**
+ 
+ 
+Este resultado ilustra un concepto fundamental en estadística conocido como la Ley de los Grandes Números. Esta ley establece que a medida que el número de repeticiones de un experimento aleatorio (en este caso, `r n` simulaciones) aumenta, la frecuencia relativa de un evento se acerca cada vez más a su probabilidad teórica.
+
+En este ejercicio, la simulación de `r n` eventos nos dio un valor `r frecuencia_relativa` que está muy cerca del valor real `r xes3`. Si hubiéramos realizado 10,000 o 100,000 simulaciones, es muy probable que la frecuencia relativa se hubiera acercado aún más a la probabilidad teórica.
+
+**En resumen:**
+
+La probabilidad teórica es el valor exacto, calculado a partir de las propiedades de la distribución de probabilidad (en este caso, la distribución de Poisson
+
+La probabilidad empírica es una estimación del valor real, obtenida a través de la experimentación o simulación.
+
+- ### Genera 100 muestras aleatorias de tamaño n=1,000.
+`r muestra`
+
+- ### Calcula la frecuencia relativa para X=3 en cada muestra.
+`r frecuencias_relativas`
+
+- ### Construye un gráfico de dispersión:
+```{r grafico_1, echo=FALSE, fig.width=12, fig.height=10, warning = FALSE}
+plot(datos_grafico$Simulacion, datos_grafico$Frecuencia,
+     main = "Frecuencias relativas de X=3 en 100 simulaciones",
+     xlab = "Número de Simulación",
+     ylab = "Frecuencia Relativa (X=3)",
+     pch = 19,
+     col = "blue")
+
+
+abline(h = xes3, col = "red", lty = 2, lwd = 2)
+
+# Añadir la leyenda en una posición que no estorbe
+legend("bottomright",
+       legend = c("Frecuencia Relativa", "Probabilidad Teórica"),
+       col = c("blue", "red"), pch = c(19, NA), lty = c(NA, 2), lwd = c(NA, 2),
+       bg = "white",
+       box.lwd = 0.5)
+```
+
+## d Impacto del tamaño muestral:
+
+- ### Genera muestras aleatorias con tamaños: 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900 y 1,000. Agrega valores si consideras que mejora el análisis de los resultados.
+
+
+- ### Calcula la frecuencia relativa de X=3 para cada tamaño.
+```{r calcular_frecuencias_relativas, echo=FALSE, warning = FALSE}
+#Genera muestras aleatorias con tamaños:
+# Definir los tamaños muestrales
+sample_sizes <- c(5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400,500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000)
+
+# Vector para almacenar las frecuencias relativas
+rel_freqs <- numeric(length(sample_sizes))
+# Generar muestras y calcular frecuencias relativas
+for (i in 1:length(sample_sizes)) {
+  n <- sample_sizes[i]
+  samples <- rpois(n, lambda = 5)
+  rel_freq <- sum(samples == 3) / n
+  rel_freqs[i] <- rel_freq
+  cat("Tamaño muestral", n, ": Frecuencia relativa =", rel_freq, "\n")
+}
+
+```
+- ### Construye un gráfico de dispersión:
+
+- Eje X: Indexación (1 al 20) por cada tamaño muestral.
+
+- Eje Y: Frecuencias relativas fn(X=3).
+
+- Dibuja la línea en P(X=3)  y describe si aparece una tendencia.
+
+```{r grafico_2, echo=FALSE, fig.width=12, fig.height=10, warning = FALSE}
+# Construir el gráfico de dispersión
+
+plot(1:length(sample_sizes), rel_freqs, 
+     xlab = "Indexación (1 al 20) por tamaño muestral",
+     ylab = "Frecuencias relativas fn(X=3)",
+     main = "Impacto del tamaño muestral en la frecuencia relativa de X=3",
+     pch = 19, col = "blue")
+
+# Dibujar la línea horizontal en P(X=3)
+abline(h = xes3, col = "red", lty = 2)
+legend("topright", legend = c("Frecuencias relativas", "P(X=3)"),
+       col = c("blue", "red"), pch = c(19, NA), lty = c(NA, 2))
+```
+## c.Convergencia de la media muestral:
+- Genera 100 muestras de tamaño n=1,000.
+```{r generar_100_muestras, echo=FALSE, warning = FALSE}
+
+# Definir parámetros
+lambda <- 5  # Media teórica de la distribución de Poisson
+n <- 1000    # Tamaño de cada muestra
+num_samples <- 100  # Número de muestras
+
+# Generar 100 muestras de tamaño n=1000 y calcular promedios muestrales
+sample_means <- numeric(num_samples)
+for (i in 1:num_samples) {
+  sample <- rpois(n, lambda = lambda)
+  sample_means[i] <- mean(sample)
+}
+```
+- Calcula el promedio muestral de solicitudes en cada muestra.
+```{r calcular_promedio_muestral, echo=FALSE, warning = FALSE}
+
+# Mostrar la media teórica
+cat("Media teórica λ =", lambda, "\n\n")
+
+# Imprimir los promedios muestrales
+for (i in 1:num_samples) {
+  cat("Muestra", i, ": Promedio muestral =", sample_means[i], "\n")
+}
+```
+### Construye un gráfico de dispersión:
+
+- Eje X: Indexación por cada muestra (1 a 100).
+
+- Eje Y: Promedios muestrales.
+
+- Traza la línea horizontal en la media teórica (λ
+) y analiza la tendencia.
+
+```{r grafico_3, echo=FALSE, fig.width=12, fig.height=10, warning = FALSE}
+# Construir el gráfico de dispersión
+plot(1:num_samples, sample_means,
+     xlab = "Indexación (Muestra 1 a 100)",
+     ylab = "Promedios muestrales",
+     main = "Convergencia de la media muestral (n=1000, λ=5)",
+     pch = 19, col = "blue")
+
+# Trazar la línea horizontal en la media teórica
+abline(h = lambda, col = "red", lty = 2)
+legend("topright", legend = c("Promedios muestrales", "Media teórica λ=5"),
+       col = c("blue", "red"), pch = c(19, NA), lty = c(NA, 2))
+
+```
+
+## f Impacto del tamaño muestral en la media:
+
+- Genera muestras aleatorias con tamaños: 5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900 y 1,000. Agrega valores si consideras que mejora el análisis de los resultados.
+```{r generar_muestras_lambda_5, echo=FALSE, warning = FALSE}
+sample_sizes_lambda5_5 <- c(5, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300,400, 500, 600, 700, 800, 900, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000)
+
+# Vector para almacenar los promedios muestrales
+sample_means <- numeric(length(sample_sizes_lambda5_5))
+```
+- Calcula el promedio muestral para cada tamaño.
+```{r calcular_promedio_muestral_lambda_5, echo=FALSE, warning = FALSE}
+
+# Generar muestras y calcular promedios muestrales
+for (i in 1:length(sample_sizes_lambda5_5)) {
+  n <- sample_sizes_lambda5_5[i]
+  sample <- rpois(n, lambda = lambda)
+  sample_means[i] <- mean(sample)
+  cat("Tamaño muestral", n, ": Promedio muestral =", sample_means[i], "\n")
+}
+
+# Mostrar la media teórica
+cat("\nMedia teórica λ =", lambda, "\n\n")
+```
+### Construye un gráfico de dispersión:
+
+- Eje X: Indexación (1 al 20) por cada tamaño muestral.
+
+- Eje Y: Promedios muestrales.
+
+- Dibuja la línea horizontal en la media teórica (λ) y compara si el promedio se aproxima a medida que crece el tamaño.
+```{r grafico_4, echo=FALSE, fig.width=12, fig.height=10, warning = FALSE}
+# Construir el gráfico de dispersión
+plot(1:length(sample_sizes), sample_means,
+     xlab = "Indexación (1 al 20) por tamaño muestral",
+     ylab = "Promedios muestrales",
+     main = "Impacto del tamaño muestral en la media muestral (λ=5)",
+     pch = 19, col = "blue")
+
+# Trazar la línea horizontal en la media teórica
+abline(h = lambda, col = "red", lty = 2)
+legend("topright", legend = c("Promedios muestrales", "Media teórica λ=5"),
+       col = c("blue", "red"), pch = c(19, NA), lty = c(NA, 2))
+```

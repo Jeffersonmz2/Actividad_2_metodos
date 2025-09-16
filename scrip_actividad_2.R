@@ -47,11 +47,3 @@ datos_grafico <- data.frame(Simulacion = simulaciones, Frecuencia = frecuencias_
 
 
 
-
-
-=======
-print(paste0("La probabilidad de que en una hora lleguen exactamente 3 es ", xes3)
-      
-      
-      ##prueba de como funciona git
->>>>>>> fc58c398155e2c50ba61c8f2e2c1e6b0924465b9
