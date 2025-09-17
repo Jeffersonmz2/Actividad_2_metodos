@@ -1,0 +1,61 @@
+---
+title: "Problema 5"
+author: "Ricardo_Vargas_M"
+date: "2025-09-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+##Problema 5: Análisis de potencia, tamaño del efecto y errores tipo I y II en una prueba de hipótesis
+Caso: Se asume que la presión arterial en la población general sigue una distribución normal con media 120 mmHg y desviación estándar 15 mmHg. Un laboratorio desea evaluar si la media de presión arterial en un grupo de pacientes con cierta enfermedad difiere significativamente de 120 mmHg, mediante una prueba t para una muestra, asumiendo varianza poblacional desconocida.
+
+Objetivo del caso: Determinar de manera informada un tamaño de muestra y un nivel de significancia adecuados para realizar el estudio.
+
+Para lograr este objetivo, analiza la relación entre la potencia estadística, el tamaño del efecto y el tamaño muestral.
+
+Fija inicialmente el nivel de significancia en α=0.1
+
+Evalúa la potencia estadística para diferentes tamaños muestrales n=
+ 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200, 300, 400, 500, 600, 700, 800, 900 y 1,000.
+
+Considera tres tamaños del efecto: d=0.2
+ (pequeño), d=0.5
+ (mediano), d=0.8
+ (grande).
+
+Visualiza los resultados:
+
+Eje X
+: tamaño muestral.
+
+Eje Y
+: potencia estadística.
+
+Traza una curva para cada tamaño del efecto.
+
+Utiliza las funciones power.t.test y ggplot2 en R para construir los gráficos.
+
+Posteriormente, repite el análisis para α=0.05
+ y α=0.01
+ y compara los tres gráficos.
+
+Preguntas orientadoras para el análisis:
+
+¿Qué tamaño de muestra se requiere para alcanzar una potencia del 80% al detectar un efecto grande(d=0.8
+)?
+
+¿Cuántas observaciones se necesitan para detectar un efecto mediano (d=0.5
+) con una potencia adecuada?
+
+Para un efecto grande, ¿qué sucede al aumentar el tamaño de muestra más allá de 300 observaciones? ¿Es eficiente?
+
+Explica cómo influye el tamaño del efecto sobre la potencia estadística.
+
+¿Cómo afecta el tamaño muestral a la potencia estadística?
+
+¿En qué punto aumentar el tamaño muestral deja de proporcionar beneficios significativos en la potencia?
+
+Con base en los gráficos obtenidos y tu análisis, propón un tamaño de muestra y un nivel de significancia apropiados para diseñar el estudio.
