@@ -228,17 +228,29 @@ df_medias <- lapply(ns, function(n){
   data.frame(n=n, medias=medias)
 }) %>% bind_rows()
 
-# 1) Histogramas con curva normal teórica
+library(dplyr)
+library(ggplot2)
+
+# Curvas teóricas
+curvas <- df_medias %>%
+  group_by(n) %>%
+  do(data.frame(
+    x = seq(min(.$medias), max(.$medias), length.out = 200),
+    y = dnorm(seq(min(.$medias), max(.$medias), length.out = 200),
+              mean = mu,
+              sd = sigma/sqrt(unique(.$n)))
+  ))
+
+# Histograma + curva normal teórica
 ggplot(df_medias, aes(x=medias)) +
-  geom_histogram(aes(y=..density..), bins=15,
-                 fill="skyblue", color="white") +
-  stat_function(fun=dnorm,
-                args=list(mean=mu, sd=sigma/sqrt(unique(df_medias$n))),
-                col="red", size=1) +
+  geom_histogram(aes(y=..density..),
+                 bins=15, fill="skyblue", color="white") +
+  geom_line(data=curvas, aes(x=x, y=y), col="red", size=1) +
   facet_wrap(~n, scales="free", ncol=3) +
-  labs(title="Histogramas de las medias muestrales para distintos tamaños n",
+  labs(title="Histogramas de las medias muestrales para distintos tamanos n",
        x="Media muestral", y="Densidad") +
   theme_bw(base_size=12)
+
 
 # 2) Cálculo de promedio y varianza empírica vs teórica
 resumen <- df_medias %>%
@@ -250,7 +262,63 @@ resumen <- df_medias %>%
     var_teo      = sigma^2/n
   )
 
-print(resumen)
+
+
+
+```
+Como podemos ver para los tamaños de muestra mas pequeños, los histogramas de las medias tienen cierta asimetria, sin duda alguna esto se debe a que la distribucion original es exponencial, a partir de n=80 se comienza a ver la evolución hacia la campana simetria asemejandose a la distribución normal en donde la muestra mayor se puede representar en gran parte por esta distribución
+
+
+```{r Tabla resumen,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
+set.seed(123)
+library(dplyr)
+library(knitr)
+
+lambda <- 0.16
+mu     <- 1/lambda
+sigma2 <- 1/lambda^2
+
+# df_medias debe tener columnas: n, medias
+# Ejemplo de cómo lo creaste:
+# df_medias <- lapply(ns, function(n) {
+#   medias <- replicate(100, mean(rexp(n, rate=lambda)))
+#   data.frame(n = n, medias = medias)
+# }) %>% bind_rows()
+
+# ---- Resumen por n (6 filas) ----
+resumen_n <- df_medias %>%
+  group_by(n) %>%
+  summarise(
+    promedio_medias  = mean(medias),             # empírico
+    varianza_medias  = var(medias),              # empírico
+    promedio_teo     = mu,                       # teórico
+    varianza_teo     = sigma2 / first(n),        # teórico σ²/n
+    .groups = "drop"
+  ) %>%
+  arrange(n)
+
+# versión redondeada para el informe
+resumen_n_red <- resumen_n %>%
+  mutate(
+    across(-n, ~round(., 2))
+  )
+
+kable(
+  resumen_n_red,
+  align = "r",
+  col.names = c("n", "Promedio empirico", "Varianza empirica",
+                "Promedio teorico", "Varianza teorica"),
+  caption = "Resumen por tamaño muestral (100 réplicas por n)"
+)
+
+
+```
+
+
+En los tamaños de muestra el promedio empirico estuvo cercano a la teoria igual que la varianza, pero conforme vemos que el tamaño de la muestra aumenta tambien de cierta forma su precisión de la teoria vs la simulación
+
+```{r Test,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
+set.seed(123)
 
 # 3) Test de normalidad por cada n
 tests <- df_medias %>%
@@ -262,23 +330,7 @@ tests <- df_medias %>%
 print(tests)
 
 ```
+El test de normalidad shapiro nos proporciona una clara realidad de como poder interpretar en donde n=5 y n=10 rechazan la normalidad, indicando que las medias no siguen la distribución normal y negando la hipotesis realizada, ahora conforme aumenta ya no es rechazada y respalda la hipotesis de que si se puede representar por lo tanto siempre que el numero de la muestra aumente tambien aumentaran y se aproximaran a una normal. conforme el numero de la muestra es muy grande es mu dificil distinguir claramente de que es una exponencial en principio
 
 
-Repite el análisis anterior extrayendo 100 muestras de cada uno de los siguientes tamaños: n=
- 5, 10, 80, 200, 500 y 2,000.
 
-Para cada tamaño de muestra n
-:
-
-Calcula el promedio y la varianza de las 100 medias muestrales.
-
-Elabora un histograma de las 100 medias muestrales.
-
-Aplica un test de normalidad (α=0.05
-) y discute los resultados.
-
-Concluye sobre la relación entre el tamaño muestral y la validez del Teorema del Límite Central, analizando:
-
-Comportamiento de la distribución de las medias muestrales.
-
-Convergencia de la media y varianza muestral hacia los valores teóricos.
