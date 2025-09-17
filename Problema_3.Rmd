@@ -164,7 +164,7 @@ La desviación estandar de las medias 0.27 indica que tanta variación hay entre
 
 ### d. Aplicación del Teorema del Límite Central para n=200:
 
-```{r}
+```{r TLC ,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
 
 set.seed(123)
 lambda <- 0.16
@@ -197,25 +197,72 @@ shapiro.test(medias)
 
 
 ```
+A pesar de que la distribución original es exponencial y asimetrica vemos como el histograma tiene cierta aproximación a una distribucion normal, la curva en Rojo representa la aproximacion del Teorema del limite central (TLC).
+El promedio de las medias muestrales tiene un valor de 6.27 muy cercano variando unicamente en el 2 decimal y por 2 decimas del valor esperado 6.25, lo cual siginifica que se encuentra relativamente cerca respecto a la teoria. Con respecto a la varianza el valor se redujo con un valor de 0.153 con respecto al valor esperado 0.195, en este caso puede estar faltando cantidad de muestras.
 
 
-Genera 100 muestras de tamaño n=200
- de la población Exponencial.
+El test de normalidad (shapiro-wilk con α=0.05) presenta lo siguiente:
 
-Calcula la media muestral de cada muestra y elabora un histograma de las 100 medias muestrales.
+H0= las 100 medias muestrales provienen de una distribución normal. Debido a que el valor supero 0.05 bi se rechaza la hipotesis de normalidad, significando que las 100 medias no muestran evidencia de desviarse de la distribucion normal.
 
-Obtén el promedio y la varianza de estas 100 medias muestrales.
+Por lo tanto el teorema del limite central se puede mostrar. A mayor numero de n, la distribución tiende a normal inpendiente de su modelo.
 
-Aplica un test de normalidad (α=0.05
-) a las 100 medias muestrales e interpreta los resultados.
 
-Explica cómo se evidencia el Teorema del Límite Central en el comportamiento de las medias muestrales, considerando:
-
-Distribución de las medias muestrales.
-
-Comparación de la media y varianza muestral con las esperadas.
 
 ### e. Aplicación del Teorema del Límite Central variando n:
+
+```{r TLC 2,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE,include=TRUE, echo=FALSE,results='hold', message=FALSE, warning=FALSE}
+set.seed(123)
+lambda <- 0.16
+mu <- 1/lambda
+sigma <- 1/lambda
+ns <- c(5, 10, 80, 200, 500, 2000)   # tamaños de muestra
+B <- 100                             # número de réplicas por cada n
+
+library(ggplot2)
+library(dplyr)
+
+# Generar las medias muestrales para cada n
+df_medias <- lapply(ns, function(n){
+  medias <- replicate(B, mean(rexp(n, rate=lambda)))
+  data.frame(n=n, medias=medias)
+}) %>% bind_rows()
+
+# 1) Histogramas con curva normal teórica
+ggplot(df_medias, aes(x=medias)) +
+  geom_histogram(aes(y=..density..), bins=15,
+                 fill="skyblue", color="white") +
+  stat_function(fun=dnorm,
+                args=list(mean=mu, sd=sigma/sqrt(unique(df_medias$n))),
+                col="red", size=1) +
+  facet_wrap(~n, scales="free", ncol=3) +
+  labs(title="Histogramas de las medias muestrales para distintos tamaños n",
+       x="Media muestral", y="Densidad") +
+  theme_bw(base_size=12)
+
+# 2) Cálculo de promedio y varianza empírica vs teórica
+resumen <- df_medias %>%
+  group_by(n) %>%
+  summarise(
+    promedio_emp = mean(medias),
+    var_emp      = var(medias),
+    promedio_teo = mu,
+    var_teo      = sigma^2/n
+  )
+
+print(resumen)
+
+# 3) Test de normalidad por cada n
+tests <- df_medias %>%
+  group_by(n) %>%
+  summarise(
+    shapiro_p = shapiro.test(medias)$p.value
+  )
+
+print(tests)
+
+```
+
 
 Repite el análisis anterior extrayendo 100 muestras de cada uno de los siguientes tamaños: n=
  5, 10, 80, 200, 500 y 2,000.
