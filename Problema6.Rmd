@@ -7,52 +7,242 @@ output: html_document
 
 ```{r setup, include=FALSE}
 set.seed(123)
-
+# Cargar librerías y datos
+library(readxl)
 library(dplyr)
-source("script_prueba_problema6.R")
+library(ggplot2)
+
+
 knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ```
-Pregunta 1: ¿Existe una diferencia significativa en los ingresos entre clientes que aceptan ofertas de campañas anteriores y aquellos que no?
+## Hipótesis 1: ¿Existe una diferencia significativa en los ingresos entre clientes que aceptan ofertas de campañas anteriores y aquellos que no?
+
+
 Para responder esta pregunta, realizaremos una prueba de hipótesis para comparar las medias de ingresos (Income) entre dos grupos: clientes que aceptaron al menos una oferta en campañas anteriores (AcceptedCmpOverall > 0) y aquellos que no (AcceptedCmpOverall == 0). Utilizaremos una prueba t de Student de dos muestras, asumiendo independencia entre grupos.
 Hipótesis
 
-H₀: No hay diferencia en los ingresos medios entre los grupos (μ₁ = μ₂).
+**H₀:** No hay diferencia en los ingresos medios entre los grupos (μ₁ = μ₂).
 
 
-H₁: Hay diferencia en los ingresos medios entre los grupos (μ₁ ≠ μ₂).
+**H₁:** Hay diferencia en los ingresos medios entre los grupos (μ₁ ≠ μ₂).
 Nivel de significancia: α = 0.05.
 
 
-```{hipotesis_1, echo=FALSE,results='asis', warning = FALSE}
+```{r Hipo1_analisis_ingresos, echo=FALSE, message=FALSE, warning=FALSE}
+
+df <- read_excel("data_actividad1.xlsx")
+
+df_final <- df %>%
+  mutate(Accepted = ifelse(AcceptedCmpOverall > 0, "Sí", "No"))
+
+# Crear grupos de ingresos
+group_si <- df_final$Income[df_final$Accepted == "Sí"]
+group_no <- df_final$Income[df_final$Accepted == "No"]
+
+# Mostrar los resultados de la prueba de normalidad
+cat("### Resultados de la prueba de normalidad (Shapiro-Wilk)\n")
 shapiro_si <- shapiro.test(group_si)
 shapiro_no <- shapiro.test(group_no)
-print(shapiro_si)  # Si p-value < 0.05, no normal
+cat("Prueba para el grupo 'Sí':\n")
+print(shapiro_si)
+cat("Prueba para el grupo 'No':\n")
 print(shapiro_no)
+```
+**Análisis de los Resultados**
+Los resultados de la prueba de Shapiro-Wilk muestran que los datos de ingresos para ambos grupos ("Sí" y "No") no siguen una distribución normal, ya que sus valores p (p<0.05) son extremadamente pequeños (8.101e−10 y 1.007e−12).
 
-# Si ambos son normales, verificar varianzas
+Debido a esta falta de normalidad, la prueba t de Student no es apropiada, y en su lugar se utilizó la prueba de Wilcoxon, que es una alternativa no paramétrica.
+
+
+```{r Hipo1_analisis_ingresos_2, echo=FALSE, message=FALSE, warning=FALSE}
+# Determinar y mostrar los resultados de la prueba de varianza
+var_equal <- FALSE
 if (shapiro_si$p.value > 0.05 & shapiro_no$p.value > 0.05) {
+  cat("\n### Prueba de Varianza (F-test)\n")
   var_test <- var.test(group_si, group_no)
-  print(var_test)  # Si p-value > 0.05, varianzas iguales
-  
+  print(var_test)
   var_equal <- var_test$p.value > 0.05
+  if (var_equal) {
+    cat("\nLas varianzas son iguales. Se aplicará la prueba t de Student.\n")
+  } else {
+    cat("\nLas varianzas no son iguales. Se aplicará la prueba t de Student con varianza no combinada.\n")
+  }
 } else {
-  var_equal <- FALSE  # Si no normal, usamos Welch por defecto o prueba no paramétrica
-  message("Datos no normales: Considerar prueba de Wilcoxon.")
+  cat("\n### Prueba de Wilcoxon\n")
+  cat("\nLos datos no son normales. Se aplicará la prueba de Wilcoxon (no paramétrica).\n")
 }
 
-# Prueba de hipótesis
+# Realizar y mostrar los resultados de la prueba de hipótesis
 if (shapiro_si$p.value > 0.05 & shapiro_no$p.value > 0.05) {
   t_result <- t.test(group_si, group_no, var.equal = var_equal, conf.level = 0.95)
 } else {
   t_result <- wilcox.test(group_si, group_no, conf.int = TRUE, conf.level = 0.95)
 }
+
+cat("\n### Resultado Final de la Prueba de Hipótesis\n")
 print(t_result)
 
-# Intervalo de confianza para la diferencia de medias (o mediana si no paramétrico)
+# Mostrar el intervalo de confianza
 ci_diff <- t_result$conf.int
-print(paste("Intervalo de confianza al 95% para la diferencia: [", ci_diff[1], ", ", ci_diff[2], "]"))
+cat(paste0("\nIntervalo de confianza al 95% para la diferencia: [", round(ci_diff[1], 2), ", ", round(ci_diff[2], 2), "]\n"))
+
+```
+**Los resultados de la prueba de Wilcoxon revelan:**
+
+Valor p: El valor p es <2.2e−16, que es mucho menor que el nivel de significancia α=0.05. Esto nos lleva a rechazar la hipótesis nula (H 
+0).
+
+Al rechazar la hipótesis nula, concluimos que hay evidencia estadística suficiente para afirmar que existe una diferencia significativa en los ingresos entre los dos grupos de clientes.
+
+**Intervalo de confianza:** El intervalo de confianza al 95% para la diferencia en la ubicación (mediana) de los ingresos es [158,540, 202,830]. Como este intervalo no incluye el cero, esto confirma la existencia de una diferencia significativa entre los grupos.
+
+
+**La prueba de Shapiro-Wilk** mostró que los datos de ingresos no siguen una distribución normal (p<0.05), por lo que se utilizó la prueba no paramétrica de Wilcoxon. El resultado de esta prueba fue un valor p<2.2e 
+−16
+ , que es menor que el nivel de significancia de 0.05. Por lo tanto, se rechaza la hipótesis nula, lo que indica que existe una diferencia significativa en los ingresos entre los clientes que aceptaron campañas y los que no. Esta conclusión se refuerza con el intervalo de confianza al 95% para la diferencia de medianas [158,540, 202,830], el cual no contiene el cero."
+
+En general, tu trabajo está muy bien hecho. Has demostrado que sabes cómo aplicar el método científico a los datos y cómo adaptar tu análisis cuando los supuestos iniciales no se cumplen.
+
+## Hipótesis 2: ¿Existe correlación entre la cantidad de hijos en el hogar y el gasto en productos básicos?
+
+**H0:** No existe correlación entre la cantidad de hijos en el hogar y el gasto en productos básicos (ρ=0).
+
+**H1:** Existe una correlación entre la cantidad de hijos en el hogar y el gasto en productos básicos (ρ!=0).
+**Nivel de significancia:** α = 0.05.
+
+```{r H_2analisis, echo=FALSE, message=FALSE, warning=FALSE}
+
+df_final <- df_final %>%
+  mutate(Children = Kidhome + Teenhome,
+         MntBasic = MntFruits + MntFishProducts + MntMeatProducts + MntSweetProducts)
+
+# Gráfico para linealidad
+ggplot(df_final, aes(x = Children, y = MntBasic)) +
+  geom_point() + geom_smooth(method = "lm") +
+  labs(title = "Dispersión: Hijos vs Gasto en Básicos")
+
+# Verificar normalidad
+shapiro_children <- shapiro.test(df_final$Children)
+shapiro_basic <- shapiro.test(df_final$MntBasic)
+print(shapiro_children)
+print(shapiro_basic)
+```
+
+**Análisis de la Hipótesis**
+Pruebas de Normalidad: Las pruebas de Shapiro-Wilk para ambas variables (cantidad de hijos y gasto en productos básicos) muestran un valor p de <2.2e −16. 
+
+Como este valor es mucho menor que 0.05, se concluye que los datos no siguen una distribución normal. Esta falta de normalidad justifica la elección de una prueba de correlación no paramétrica, como la prueba de correlación de Spearman.
+
+
+
+```{r H_2analisis_2, echo=FALSE, message=FALSE, warning=FALSE}
+# Correlación
+if (shapiro_children$p.value > 0.05 & shapiro_basic$p.value > 0.05) {
+  cor_method <- "pearson"
+} else {
+  cor_method <- "spearman"
+  message("Datos no normales: Usando Spearman.")
+}
+
+cor_result <- cor.test(df_final$Children, df_final$MntBasic, method = cor_method, conf.level = 0.95)
+print(cor_result)
+
+# Intervalo de confianza para la correlación
+ci_cor <- cor_result$conf.int
+print(paste("Intervalo de confianza al 95% para la correlación: [", ci_cor[1], ", ", ci_cor[2], "]"))
+
+```
+**Conclusiones de la Prueba de Correlación**
+
+
+Correlación de Spearman (rho): El coeficiente de correlación de Spearman es ρ=−0.549. Este valor indica una relación de fuerza moderada a fuerte.
+
+Dirección de la Correlación: El signo negativo del coeficiente (ρ) muestra que la correlación es inversa. Esto significa que a medida que la cantidad de hijos aumenta, el gasto en productos básicos tiende a disminuir.
+
+Significancia Estadística: El valor p para la prueba de correlación es <2.2e−16. Al ser menor que el nivel de significancia de 0.05, se puede rechazar la hipótesis nula (que no existe correlación). Esto confirma que la correlación observada es estadísticamente significativa y no se debe al azar.
+
+**En resumen,** los datos sugieren que las familias con más hijos tienden a gastar menos en productos básicos, lo que podría indicar un cambio en los hábitos de consumo o prioridades de gasto a medida que aumenta el número de hijos.
+
+## Hipótesis 3: Relación entre ingresos y consumo de vino
+
+Hipótesis
+
+**H₀:** (Hipótesis nula): No existe correlación entre los ingresos (Income) y el gasto en vinos (MntWines) (ρ = 0).
+
+
+**H₁:** (Hipótesis alternativa): Existe una correlación positiva entre los ingresos y el gasto en vinos; a mayor ingreso, mayor consumo de vino (ρ > 0).
+
+
+**Nivel de significancia:** α = 0.05.
+
+
+```{r H_3grafica, echo=FALSE, message=FALSE, warning=FALSE}
+# Gráfico de dispersión para evaluar linealidad
+library(ggplot2)
+ggplot(df_final, aes(x = Income, y = MntWines)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE) +
+  labs(title = "Dispersión: Ingresos vs Gasto en Vinos", x = "Ingresos", y = "Gasto en Vinos") +
+  theme_minimal()
+```
+
+**Análisis de los resultados**
+
+
+**Gráfico de dispersión: Ingresos vs Gasto en Vinos**
+
+
+El gráfico muestra una tendencia ascendente clara, con una línea de regresión lineal (en azul) que indica una relación positiva entre los ingresos (Income) y el gasto en vinos (MntWines). Esto sugiere visualmente que, a medida que los ingresos aumentan, el gasto en vinos tiende a incrementarse, apoyando la hipótesis alternativa (H₁).
+
+
+
+```{r H_3ana_1, echo=FALSE, message=FALSE, warning=FALSE}
+
+
+# Verificar normalidad
+shapiro_income <- shapiro.test(df_final$Income)
+shapiro_wines <- shapiro.test(df_final$MntWines)
+print(shapiro_income)  # Si p-value < 0.05, no normal
+print(shapiro_wines)
+
+# Seleccionar método de correlación
+if (shapiro_income$p.value > 0.05 & shapiro_wines$p.value > 0.05) {
+  cor_method <- "pearson"
+  message("Datos normales: Usando correlación de Pearson.")
+} else {
+  cor_method <- "spearman"
+  message("Datos no normales: Usando correlación de Spearman.")
+}
+
+# Prueba de correlación
+cor_result <- cor.test(df_final$Income, df_final$MntWines, method = cor_method, 
+                       alternative = "greater", conf.level = 0.95)
+print(cor_result)
+
+# Intervalo de confianza para la correlación
+ci_cor <- cor_result$conf.int
+print(paste("Intervalo de confianza al 95% para la correlación: [", ci_cor[1], ", ", ci_cor[2], "]"))
 
 ```
 
+Pruebas de normalidad (Shapiro-Wilk)
 
+Income: W = 0.98422, p-value = 1.069e-14
+
+P-value < 0.05, por lo que rechazamos la hipótesis nula de normalidad. Los ingresos no siguen una distribución normal.
+
+
+MntWines: W = 0.84039, p-value < 2.2e-16
+
+P-value < 0.05, también rechazamos la normalidad. El gasto en vinos no es normal.
+
+Dado que ambas variables no son normales, el uso de la correlación de Spearman fue correcto en lugar de Pearson, como se aplicó en el código.
+
+
+**Interpretación**
+
+**Confirmación de la hipótesis:** Los resultados apoyan **H₁:** a mayor ingreso, mayor consumo de vino. La correlación de Spearman (rho = 0.844) indica una relación muy fuerte, y el p-value extremadamente bajo (< 2.2e-16) confirma que esta relación es estadísticamente significativa.
+
+
+**Implicaciones:** Esto sugiere que los clientes con mayores ingresos son un segmento clave para campañas de marketing enfocadas en vinos. La dispersión en el gráfico indica que, aunque la tendencia es clara, el gasto en vinos también depende de otros factores (e.g., preferencias personales o campañas específicas).
