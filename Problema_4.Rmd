@@ -27,9 +27,11 @@ n <- length(muestra)
 media <- mean(muestra)
 sd_muestra <- sd(muestra)
 
+print(media)
+print(sd_muestra)
 
 ```
-
+La media muestral es de 5.9175 kWh/L y la desviacion es de 0.2232.
 
 Normalidad:
 
