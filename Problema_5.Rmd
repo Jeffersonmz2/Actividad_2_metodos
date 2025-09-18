@@ -59,3 +59,75 @@ Explica cómo influye el tamaño del efecto sobre la potencia estadística.
 ¿En qué punto aumentar el tamaño muestral deja de proporcionar beneficios significativos en la potencia?
 
 Con base en los gráficos obtenidos y tu análisis, propón un tamaño de muestra y un nivel de significancia apropiados para diseñar el estudio.
+
+```{r}
+# Parámetros del problema
+mu0   <- 120      # valor nulo
+sdref <- 15       # sd de referencia (para definir d)
+ds    <- c(0.2, 0.5, 0.8)  # tamaños del efecto (pequeño, mediano, grande)
+
+# Secuencia de tamaños muestrales
+ns <- c(10,20,30,40,50,60,70,80,90,100,200,300,400,500,600,700,800,900,1000)
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+
+# Función que calcula potencia para un alfa dado (dos colas)
+potencia_por_alpha <- function(alpha){
+  expand.grid(n = ns, d = ds) |>
+    as_tibble() |>
+    mutate(delta = d * sdref,                         # diferencia en la escala original (mmHg)
+           power = mapply(function(n, delta)
+                     power.t.test(n = n,
+                                  delta = delta, sd = sdref,
+                                  sig.level = alpha,
+                                  type = "one.sample",
+                                  alternative = "two.sided")$power,
+                     n, delta),
+           alpha = alpha)
+}
+
+# Crea tres data frames (alpha = 0.10, 0.05, 0.01) y los apila
+df_pow <- bind_rows(
+  potencia_por_alpha(0.10),
+  potencia_por_alpha(0.05),
+  potencia_por_alpha(0.01)
+)
+
+# Para graficar cada alfa por separado (tres gráficos)
+p <- ggplot(df_pow, aes(x = n, y = power, color = factor(d), group = d)) +
+  geom_line(linewidth = 1) +
+  geom_hline(yintercept = .80, linetype = 2, linewidth = .7) +  # línea de 80%
+  scale_color_manual(values = c("#1f77b4","#2ca02c","#d62728"),
+                     name = "Tamaño del efecto (d)",
+                     labels = c("0.2 (pequeño)", "0.5 (mediano)", "0.8 (grande)")) +
+  scale_y_continuous(limits = c(0,1), breaks = seq(0,1,.1)) +
+  labs(x = "Tamaño muestral (n)",
+       y = "Potencia",
+       title = "Curvas de potencia (t de 1 muestra, dos colas)",
+       subtitle = "σ ref = 15 mmHg; potencias por tamaño del efecto") +
+  theme_bw(base_size = 12) +
+  facet_wrap(~ alpha, labeller = label_bquote(alpha==.(alpha)))
+p
+
+```
+
+```{r}
+
+necesario_80 <- expand.grid(d = ds, alpha = c(0.10, 0.05, 0.01)) |>
+  as_tibble() |>
+  mutate(delta = d * sdref,
+         n_req = mapply(function(delta, alpha)
+                  ceiling(power.t.test(power = .80,
+                                       delta = delta, sd = sdref,
+                                       sig.level = alpha,
+                                       type="one.sample",
+                                       alternative="two.sided")$n),
+                  delta, alpha)) |>
+  select(alpha, d, n_req)
+
+necesario_80
+
+```
+
