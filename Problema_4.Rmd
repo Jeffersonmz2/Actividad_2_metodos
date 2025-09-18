@@ -50,22 +50,16 @@ ggplot(df, aes(x=muestra)) +
 
 
 ```
-
-
-Elabora un histograma y una curva de densidad de la muestra. ¿Podría considerarse normal la población de origen de la muestra?
-
-Aplica pruebas para evaluar la normalidad. Expón claramente las hipótesis nula y alternativa. Determina el nivel de significancia adecuado. Argumenta el valor del nivel de significancia que uses.
-
-Comenta si los resultados sugieren la viabilidad de usar métodos paramétricos para calcular intervalos de confianza.
+A pesar que el histograma (grafica) nos muestra una grafica similar a la de una distribución normal no es exactamente simetrica, visualmente podemos analizar que como tal no hay una fuerte desviación pero lo corroboraremos con la prueba de shapiro en donde nuestra hipotesis es que los datos provienen de una poblacion normal si p>0.05 no se rechaza la hipotesis, la hipotesis alternativa es que los datos no provienen de una distribución normal.
 
 ```{r}
 
 
 shapiro.test(muestra)      # Shapiro–Wilk
 
-          # Anderson–Darling
-
+        
 ```
+ya que p=0.99>0.05 no se rechaza la normalidad y por lo tanto es valido usar metodos parametricos para calcular los intervalos de confianza.
 
 ```{r}
 error_est <- qt(0.975, df=n-1) * sd_muestra/sqrt(n)
@@ -74,6 +68,8 @@ IC_t
 
 
 ```
+Calculamos un intervalo de confianza al 95% esto nos indica que si realizaramos el muestreo repetidas veces y calcularamos siempre el 95% de los intervalos contendrian la media poblacional real y eficiencia media de todos los generadores. La media muestral fue de 5.92 KWh/L y el IC=5.81-6.02kWh/L
+Por lo tanto la eficiencia "real" media del consumo esta dentro del rango de IC
 
 ```{r}
 set.seed(123)
@@ -96,14 +92,19 @@ IC_boot_BCa <- boot.ci(boot_obj, type=c("bca"))
 
 ```
 
-Método paramétrico:
+```{r}
+IC_boot_percentil
+IC_boot_BCa
 
-Si se cumplen las condiciones para su aplicación, calcula un intervalo de confianza paramétrico.
+```
+Los tres intervalos que realizamos son similares y estan centrados alrededor de la media estan muy cerca del rango a pesar de que el parametrico es un poco mas ancho, Bootstrap percentil y BCa son casi identicos y la muestra en ese sentido no tiene un sesgo grande.
 
-Compara e interpreta este intervalo con los obtenidos mediante métodos no paramétricos.
+Las diferencias rondan alrededor del 0.01 dejando de ser significativas y reflejando tal vez el ajuste del metodo
 
-Procedimiento bootstrap:
 
-Calcula 2 tipos de intervalos de confianza para la media mediante Bootstrap.
 
-Compara ambos intervalos: ¿Son similares o presentan diferencias significativas?
+| Método                          | Intervalo de Confianza (95%) |
+|---------------------------------|------------------------------|
+| Paramétrico (t-Student)         | [5.813, 6.022]              |
+| Bootstrap Percentil (2.5%–97.5%)| [5.826, 6.013]              |
+| Bootstrap BCa                   | [5.825, 6.010]              |
